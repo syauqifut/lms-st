@@ -1,0 +1,309 @@
+<template>
+  <div>
+    <div class="bg-gray-100 font-bold rounded shadow-xl py-5 px-5 w-full mb-10" v-if="isMobile()">
+      <h1 class="mb-8 font-bold text-3xl">Attendance Data</h1>
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <div class="mb-6 flex justify-between items-center">
+              <div class="w-1/4 h-12">
+                <text-input
+                  v-model="form.date_start"
+                  type="date"
+                  :errors="$page.errors.date_start"
+                  class="pr-6 pb-8 w-full lg"
+                  label="Start Date"
+                />
+              </div>
+              <div class="w-1/4 h-12">
+                <text-input
+                  v-model="form.date_end"
+                  type="date"
+                  :errors="$page.errors.date_end"
+                  class="pr-6 pb-8 w-full lg"
+                  label="End Date"
+                />
+              </div>
+              <div class="w-1/4 h-12">
+                <select-input
+                  v-model="form.usertype_id"
+                  :errors="$page.errors.usertype_id"
+                  class="pr-6 pb-8 w-full lg"
+                  label="User Type"
+                >
+                  <option value="">All</option>
+                  <option value="3">Teachers</option>
+                  <option value="2">Students</option>
+                </select-input>
+              </div>
+              <div class="w-1/4 h-12 py-2 px-5">
+                <h1 class="mb-1">User :</h1>
+                <v-select label="fullname" :reduce="users => users.id" v-model="form.user_id" :options="users"></v-select>
+              </div>
+             <div class="w-1/4 h-12 py-2 px-5">
+          <h1 class="mb-1">Subject :</h1>
+          <v-select label="name" :reduce="subject => subject.id" v-model="form.subject" :options="subject"></v-select>
+        </div>
+            </div>
+          </div>
+          <div class="row">
+           <div class="col">   
+              <div class="w-1/3 h-1 py-1 px-3">
+              <h1 class="mb-1">Group :</h1>
+              <v-select v-model="form.kelas" label="classes" :reduce="kelas => kelas.id" :options="kelas" />
+              </div>      
+            </div>   
+          </div><br><br><br><br>
+            <div>
+              <button
+                class="btn-indigo hover:underline"
+                tabindex="-1"
+                type="button"
+                @click="cari"
+              >
+                SEARCH
+              </button>
+            </div>
+        <!-- <inertia-link :href="route('absensi.absen_murid')" method="get" :data="{ foo: 'bar' }">Save</inertia-link> --> 
+      </div>
+      </div>
+    </div>
+    <div class="bg-gray-100 font-bold rounded shadow-xl py-5 px-5 w-full mb-10" v-if="!isMobile()">
+      <h1 class="mb-8 font-bold text-3xl">Attendance Data</h1>
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <div class="mb-6 flex justify-between items-center">
+              <div class="w-1/4 h-12">
+                <text-input
+                  v-model="form.date_start"
+                  type="date"
+                  :errors="$page.errors.date_start"
+                  class="pr-6 pb-8 w-full lg"
+                  label="Start Date"
+                />
+              </div>
+              <div class="w-1/4 h-12">
+                <text-input
+                  v-model="form.date_end"
+                  type="date"
+                  :errors="$page.errors.date_end"
+                  class="pr-6 pb-8 w-full lg"
+                  label="End Date"
+                />
+              </div>
+              <div class="w-1/4 h-12">
+                <select-input
+                  v-model="form.usertype_id"
+                  :errors="$page.errors.usertype_id"
+                  class="pr-6 pb-8 w-full lg"
+                  label="User Type"
+                >
+                  <option value="">All</option>
+                  <option value="3">Teachers</option>
+                  <option value="2">Students</option>
+                </select-input>
+              </div>
+              <div class="w-1/4 h-12 py-2 px-5">
+                <h1 class="mb-1">User :</h1>
+                <v-select label="fullname" :reduce="users => users.id" v-model="form.user_id" :options="users"></v-select>
+              </div>
+             <div class="w-1/4 h-12 py-2 px-5">
+                <h1 class="mb-1">Subject :</h1>
+                <v-select label="name" :reduce="subject => subject.id" v-model="form.subject" :options="subject"></v-select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+           <div class="col">   
+              <div class="w-1/3 h-1 py-1 px-3">
+              <h1 class="mb-1">Group :</h1>
+              <v-select v-model="form.kelas" label="classes" :reduce="kelas => kelas.id" :options="kelas" />
+              </div>      
+            </div>   
+          </div><br><br><br><br>
+            <div>
+              <button
+                class="btn-indigo hover:underline"
+                tabindex="-1"
+                type="button"
+                @click="cari"
+              >
+                SEARCH
+              </button>
+            </div>
+        <!-- <inertia-link :href="route('absensi.absen_murid')" method="get" :data="{ foo: 'bar' }">Save</inertia-link> --> 
+      </div>
+      </div>
+    </div>
+
+    <div class="mb-6 flex justify-between items-center">
+      <a class="btn-indigo" :href="route('absensi.export_excel',
+                                         {
+                                           tgl_mulai: tanggal.tgl_mulai,
+                                           tgl_akhir: tanggal.tgl_akhir,
+                                           id_user: form.user_id ? form.user_id : '',
+                                           usertype_id: form.usertype_id ? form.usertype_id : '',
+                                         }
+      )" target="_blank"
+      >
+        <span>Export Excel</span>
+      </a>
+    </div>
+    <div class="bg-white rounded shadow overflow-x-auto">
+      <table class="w-full whitespace-no-wrap">
+        <tr class="text-left font-bold">
+          <th class="px-6 pt-6 pb-4">Date</th>
+          <th class="px-6 pt-6 pb-4">Subject</th>
+          <th class="px-6 pt-6 pb-4">Attendance Date</th>
+          <th class="px-6 pt-6 pb-4">Learning</th>
+          <th class="px-6 pt-6 pb-4">Hours of Learning Module</th>
+          <th class="px-6 pt-6 pb-4">Attendance Hours</th>
+          <th class="px-6 pt-6 pb-4">Description</th>
+          <th class="px-6 pt-6 pb-4">NIM</th>
+          <th class="px-6 pt-6 pb-4">Name</th>
+          <th class="px-6 pt-6 pb-4">User Type</th>
+          
+        
+        </tr>
+        <tr
+          v-for="presence in presences"
+          :key="presence.id"
+          class="hover:bg-gray-100 focus-within:bg-gray-100"
+        >
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.course_module.date }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.subject.name }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+             {{presence.jam_course_module1}}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.course.title }} <br>
+              {{ presence.course_module.title }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.jam_course_module2 }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.jam_absen }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.keterangan }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.user.username }}
+            </div>
+          </td>
+          <td class="border-t">
+            <div class="px-6 py-4 flex items-center focus:text-indigo-500">
+              {{ presence.user.fullname }}
+            </div>
+          </td>
+
+          <td class="border-t w-px">
+            <div
+              class="px-4 flex items-center"
+
+              tabindex="-1"
+            >
+              {{ presence.user.usertype_id == 2 ? 'MURID' : 'GURU' }}
+            </div>
+          </td>
+          
+        </tr>
+        <tr v-if="presences.length === 0">
+          <td class="border-t px-6 py-4 text-center" colspan="8">There is no attendance data.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</template>
+
+<script>
+import Layout from '@/Shared/Layout'
+import mapValues from 'lodash/mapValues'
+import TextInput from '@/Shared/TextInput'
+import SelectInput from '@/Shared/SelectInput'
+
+export default {
+  metaInfo: { title: 'Attendance Data' },
+  layout: Layout,
+  components: {
+    TextInput,
+    SelectInput,
+  },
+  props: {
+    users: Array,
+    presences: Array,
+    tanggal: Array,
+    kelas: Array,
+    subject: Array,
+  },
+  data() {
+    return {
+      sending: false,
+      form: {
+        date_start: this.tanggal.tgl_mulai,
+        date_end: this.tanggal.tgl_akhir,
+      },
+    }
+  },
+  watch: {
+
+  },
+  methods: {
+    cari() {
+      // this.sending = true
+      const today = new Date()
+      const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()
+      let tgl_mulai = this.form.date_start == null ? date : this.form.date_start
+      let tgl_akhir = this.form.date_end  == null ? date : this.form.date_end
+      let id_user = this.form.user_id == null ? '' : this.form.user_id
+      let usertype_id = this.form.usertype_id == null ? '' : this.form.usertype_id
+      let subject = this.form.subject == null ? '' : this.form.subject
+      let kelas = this.form.kelas == null ? '' : this.form.kelas
+      this.$inertia.replace(this.route('absensi.absen_guru',
+        {
+          tgl_mulai: tgl_mulai,
+          tgl_akhir: tgl_akhir,
+          id_user: id_user,
+          usertype_id: usertype_id,
+          subject:subject,
+          kelas: kelas,
+        }
+      )
+      ).then(() => {
+        this.form.date_start = this.tanggal.tgl_mulai
+        this.form.date_end = this.tanggal.tgl_akhir
+        // this.form.child_id = this.selectedChild.id
+      })
+    },
+    reset() {
+      this.form = mapValues(this.form, () => null)
+    },
+    isMobile: function() {
+    	var check = false;
+      (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+      return check;
+    }
+  },
+}
+</script>
